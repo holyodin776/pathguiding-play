@@ -5,7 +5,23 @@
 if (NOT DEFINED MTS_VERSION)
   message(FATAL_ERROR "This file has to be included from the main build file.")
 endif()
-
+if(POLICY CMP0148) 
+	cmake_policy(SET CMP0148 OLD) 
+endif()
+set(DEPS "O:/3D/mitsubaEX/variance-aware-path-guiding/mitsuba/dependencies")
+set(QTPATH "C:/Qt/5.15.2/msvc2019_64/lib/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+set(GLEW_ROOT_DIR "${DEPS}")
+set(JPEG_LIBRARY "${DEPS}/lib/jpeg.lib")
+set(ZLIB_LIBRARY "${DEPS}/lib/zlib.lib")
+set(PNG_LIBRARY "${DEPS}/lib/libpng16.lib")
+set(XERCES_C_LIBRARY "${DEPS}/lib/xerces-c_3.lib")
+set(FFTW3_LIBRARY "${DEPS}/lib/libfftw3-3.lib")
+set(Qt5Core_DIR "${QTPATH}/Qt5Core")
+set(Qt5Gui_DIR "${QTPATH}/Qt5Gui")
+set(Qt5Xml_DIR "${QTPATH}/Qt5Xml")
+set(Qt5XmlPatterns_DIR "${QTPATH}/Qt5XmlPatterns")
+set(Qt5OpenGL_DIR "${QTPATH}/Qt5OpenGL")
 # Set up CMake to use the Mitsuba bundled libraries. Set the variable
 # "MTS_NO_DEPENDENCIES" to a value which evaluates to TRUE to avoid
 # using the Mitsuba dependencies even if they are present.
@@ -57,10 +73,22 @@ endif()
 
 
 # Qt4 (optional)
-find_package(Qt4 4.7 COMPONENTS
-  QtCore QtGui QtXml QtXmlPatterns QtNetwork QtOpenGL)
-CMAKE_DEPENDENT_OPTION(BUILD_GUI "Built the Qt4-based mitsuba GUI." ON
-  "QT4_FOUND" OFF)
+#if (BUILD_GUI)
+#find_package(Qt4 4.7 COMPONENTS
+#  QtCore QtGui QtXml QtXmlPatterns QtNetwork QtOpenGL)
+#CMAKE_DEPENDENT_OPTION(BUILD_GUI "Built the Qt4-based mitsuba GUI." ON
+#  "QT4_FOUND" OFF)
+#endif()
+  
+
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
+find_package(Qt5Xml REQUIRED)
+find_package(Qt5XmlPatterns REQUIRED)
+find_package(Qt5Network REQUIRED)
+find_package(Qt5OpenGL REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+CMAKE_DEPENDENT_OPTION(BUILD_GUI "Built the Qt5-based mitsuba GUI." ON "Qt5Core_FOUND" OFF)
   
 # System threading library, used for custom options
 set(CMAKE_THREAD_PREFER_PTHREAD ON)

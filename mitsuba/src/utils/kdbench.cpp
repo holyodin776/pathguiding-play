@@ -74,7 +74,7 @@ public:
 		optind = 1;
 
 		/* Parse command-line arguments */
-		while ((optchar = getopt(argc, argv, "i:t:e:c:p:r:l:x:b:d:hf")) != -1) {
+		while ((optchar = getopt((int* (__cdecl*)(void))argc, (char* const** (__cdecl*)(void))argv, "i:t:e:c:p:r:l:x:b:d:hf")) != -1) {
 			switch (optchar) {
 				case 'h': {
 						help();

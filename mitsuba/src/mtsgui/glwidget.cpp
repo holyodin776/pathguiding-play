@@ -21,7 +21,7 @@
 #if defined(__OSX__)
 #include <OpenGL/glew.h>
 #else
-#include <GL/glew.h>
+//#include <GL/glew.h>
 #endif
 #include "glwidget.h"
 #include "preview.h"

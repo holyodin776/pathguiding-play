@@ -22,6 +22,7 @@
 #include <mitsuba/core/platform.h>
 #include <QtGui/QtGui>
 #include <QtXml/QtXml>
+#include <QtWidgets/QtWidgets>
 #include <mitsuba/render/scene.h>
 #include <mitsuba/render/vpl.h>
 #include <mitsuba/core/bitmap.h>

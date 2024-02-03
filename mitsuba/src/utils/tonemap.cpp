@@ -132,7 +132,7 @@ public:
 		std::string rfilterName = "lanczos";
 
 		/* Parse command-line arguments */
-		while ((optchar = getopt(argc, argv, "htxag:m:f:r:b:c:o:p:s:B:F:")) != -1) {
+		while ((optchar = getopt((int* (__cdecl*)(void))argc, (char* const** (__cdecl*)(void))argv, "htxag:m:f:r:b:c:o:p:s:B:F:")) != -1) {
 			switch (optchar) {
 				case 'h': {
 						help();

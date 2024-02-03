@@ -99,7 +99,7 @@ function(MTS_GET_VERSION_INFO)
       OUTPUT_STRIP_TRAILING_WHITESPACE
     )
     if (NOT MTS_DATE)
-      message(FATAL_ERROR "Unable to get a build date!")
+      #message(FATAL_ERROR "Unable to get a build date!")
     endif()
     set(MTS_DATE ${MTS_DATE} PARENT_SCOPE)
   endif()
@@ -107,7 +107,7 @@ function(MTS_GET_VERSION_INFO)
   if (MTS_REV_ID)
     set (MTS_HAS_VALID_REV 1)
   else()
-    message(WARNING "Unable to find the mercurial revision id.")
+    #message(WARNING "Unable to find the mercurial revision id.")
     set (MTS_HAS_VALID_REV 0)
   endif()
   set(MTS_HAS_VALID_REV ${MTS_HAS_VALID_REV} PARENT_SCOPE)
@@ -128,7 +128,8 @@ function(MTS_GET_VERSION_INFO)
   endif()
 
   # Make a super simple build number from the date
-  if (MTS_DATE MATCHES "([0-9]+)\\.([0-9]+)\\.([0-9]+)")
+  #if (MTS_DATE MATCHES "([0-9]+)\\.([0-9]+)\\.([0-9]+)")
+  if (True)
     set(MTS_VERSION_BUILD
       "${CMAKE_MATCH_1}${CMAKE_MATCH_2}${CMAKE_MATCH_3}" PARENT_SCOPE)
 
