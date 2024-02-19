@@ -88,9 +88,11 @@ MTS_NAMESPACE_BEGIN
  * }
  */
 
-class MIDirectIntegrator : public SamplingIntegrator {
+class MIDirectIntegrator : public SamplingIntegrator
+{
 public:
-	MIDirectIntegrator(const Properties &props) : SamplingIntegrator(props) {
+	MIDirectIntegrator(const Properties &props) : SamplingIntegrator(props)
+	{
 		/* Number of shading samples -- this parameter is a shorthand notation
 		   to set both 'emitterSamples' and 'bsdfSamples' at the same time*/
 		size_t shadingSamples = props.getSize("shadingSamples", 1);
@@ -117,7 +119,8 @@ public:
 		configure();
 	}
 
-	void serialize(Stream *stream, InstanceManager *manager) const {
+	void serialize(Stream *stream, InstanceManager *manager) const 
+	{
 		SamplingIntegrator::serialize(stream, manager);
 		stream->writeSize(m_emitterSamples);
 		stream->writeSize(m_bsdfSamples);
@@ -125,7 +128,8 @@ public:
 		stream->writeBool(m_hideEmitters);
 	}
 
-	void configure() {
+	void configure()
+	{
 		SamplingIntegrator::configure();
 
 		size_t sum = m_emitterSamples + m_bsdfSamples;
@@ -135,7 +139,8 @@ public:
 		m_fracLum = m_emitterSamples / (Float) sum;
 	}
 
-	void configureSampler(const Scene *scene, Sampler *sampler) {
+	void configureSampler(const Scene *scene, Sampler *sampler)
+	{
 		SamplingIntegrator::configureSampler(scene, sampler);
 		if (m_emitterSamples > 1)
 			sampler->request2DArray(m_emitterSamples);
@@ -143,7 +148,8 @@ public:
 			sampler->request2DArray(m_bsdfSamples);
 	}
 
-	Spectrum Li(const RayDifferential &r, RadianceQueryRecord &rRec) const {
+	Spectrum Li(const RayDifferential &r, RadianceQueryRecord &rRec) const 
+	{
 		/* Some aliases and local variables */
 		const Scene *scene = rRec.scene;
 		Intersection &its = rRec.its;
@@ -151,37 +157,44 @@ public:
 		Spectrum Li(0.0f);
 		Point2 sample;
 
-		/* Perform the first ray intersection (or ignore if the
-		   intersection has already been provided). */
-		if (!rRec.rayIntersect(ray)) {
-			/* If no intersection could be found, possibly return
-			   radiance from a background emitter */
+		/* Perform the first ray intersection (or ignore if the intersection has already been provided). */
+		if (!rRec.rayIntersect(ray))
+		{
+			/* If no intersection could be found, possibly return radiance from a background emitter */
 			if (rRec.type & RadianceQueryRecord::EEmittedRadiance && !m_hideEmitters)
+			{
 				return scene->evalEnvironment(ray);
+			}
 			else
+			{
 				return Spectrum(0.0f);
+			}
+				
 		}
 
 		/* Possibly include emitted radiance if requested */
 		if (its.isEmitter() && (rRec.type & RadianceQueryRecord::EEmittedRadiance) && !m_hideEmitters)
+		{
 			Li += its.Le(-ray.d);
+		}
+			
 
 		/* Include radiance from a subsurface scattering model if requested */
 		if (its.hasSubsurface() && (rRec.type & RadianceQueryRecord::ESubsurfaceRadiance))
+		{
 			Li += its.LoSub(scene, rRec.sampler, -ray.d, rRec.depth);
+		}
+			
 
 		const BSDF *bsdf = its.getBSDF(ray);
 
-		if (!(rRec.type & RadianceQueryRecord::EDirectSurfaceRadiance)
-			|| (m_strictNormals && dot(ray.d, its.geoFrame.n)
-				* Frame::cosTheta(its.wi) >= 0)) {
+		if (!(rRec.type & RadianceQueryRecord::EDirectSurfaceRadiance) || (m_strictNormals && dot(ray.d, its.geoFrame.n) * Frame::cosTheta(its.wi) >= 0)) 
+		{
 			/* Only render the direct illumination component if
 			 *
 			 * 1. It was requested
-			 * 2. The surface has an associated BSDF (i.e. it isn't an index-
-			 *    matched medium transition -- this is not supported by 'direct')
-			 * 3. If 'strictNormals'=true, when the geometric and shading
-			 *    normals classify the incident direction to the same side
+			 * 2. The surface has an associated BSDF (i.e. it isn't an index-matched medium transition -- this is not supported by 'direct')
+			 * 3. If 'strictNormals'=true, when the geometric and shading normals classify the incident direction to the same side
 			 */
 			return Li;
 		}
@@ -199,7 +212,8 @@ public:
 		Float fracLum = m_fracLum, fracBSDF = m_fracBSDF,
 		      weightLum = m_weightLum, weightBSDF = m_weightBSDF;
 
-		if (rRec.depth > 1 || adaptiveQuery) {
+		if (rRec.depth > 1 || adaptiveQuery)
+		{
 			/* This integrator is used recursively by another integrator.
 			   Be less accurate as this sample will not directly be observed. */
 			numBSDFSamples = numDirectSamples = 1;
@@ -207,20 +221,27 @@ public:
 			weightLum = weightBSDF = 1.0f;
 		}
 
-		if (numDirectSamples > 1) {
+		if (numDirectSamples > 1) 
+		{
 			sampleArray = rRec.sampler->next2DArray(numDirectSamples);
-		} else {
-			sample = rRec.nextSample2D(); sampleArray = &sample;
+		} 
+		else 
+		{
+			sample = rRec.nextSample2D(); 
+			sampleArray = &sample;
 		}
 
 		DirectSamplingRecord dRec(its);
-		if (bsdf->getType() & BSDF::ESmooth) {
+		if (bsdf->getType() & BSDF::ESmooth) 
+		{
 			/* Only use direct illumination sampling when the surface's
 			   BSDF has smooth (i.e. non-Dirac delta) component */
-			for (size_t i=0; i<numDirectSamples; ++i) {
+			for (size_t i=0; i<numDirectSamples; ++i)
+			{
 				/* Estimate the direct illumination if this is requested */
 				Spectrum value = scene->sampleEmitterDirect(dRec, sampleArray[i]);
-				if (!value.isZero()) {
+				if (!value.isZero()) 
+				{
 					const Emitter *emitter = static_cast<const Emitter *>(dRec.object);
 
 					/* Allocate a record for querying the BSDF */
@@ -230,7 +251,8 @@ public:
 					const Spectrum bsdfVal = bsdf->eval(bRec);
 
 					if (!bsdfVal.isZero() && (!m_strictNormals
-							|| dot(its.geoFrame.n, dRec.d) * Frame::cosTheta(bRec.wo) > 0)) {
+							|| dot(its.geoFrame.n, dRec.d) * Frame::cosTheta(bRec.wo) > 0)) 
+					{
 						/* Calculate prob. of sampling that direction using BSDF sampling */
 						Float bsdfPdf = emitter->isOnSurface() ? bsdf->pdf(bRec) : 0;
 
@@ -248,14 +270,18 @@ public:
 		/*                            BSDF sampling                             */
 		/* ==================================================================== */
 
-		if (numBSDFSamples > 1) {
+		if (numBSDFSamples > 1)
+		{
 			sampleArray = rRec.sampler->next2DArray(numBSDFSamples);
-		} else {
+		} 
+		else 
+		{
 			sample = rRec.nextSample2D(); sampleArray = &sample;
 		}
 
 		Intersection bsdfIts;
-		for (size_t i=0; i<numBSDFSamples; ++i) {
+		for (size_t i=0; i<numBSDFSamples; ++i)
+		{
 			/* Sample BSDF * cos(theta) and also request the local density */
 			Float bsdfPdf;
 
@@ -274,14 +300,17 @@ public:
 			Ray bsdfRay(its.p, wo, ray.time);
 
 			Spectrum value;
-			if (scene->rayIntersect(bsdfRay, bsdfIts)) {
+			if (scene->rayIntersect(bsdfRay, bsdfIts)) 
+			{
 				/* Intersected something - check if it was an emitter */
 				if (!bsdfIts.isEmitter())
 					continue;
 
 				value = bsdfIts.Le(-bsdfRay.d);
 				dRec.setQuery(bsdfRay, bsdfIts);
-			} else {
+			} 
+			else 
+			{
 				/* Intersected nothing -- perhaps there is an environment map? */
 				const Emitter *env = scene->getEnvironmentEmitter();
 

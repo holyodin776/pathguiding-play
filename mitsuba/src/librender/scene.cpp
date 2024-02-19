@@ -354,8 +354,10 @@ void Scene::initialize() {
 	m_objects.ensureUnique();
 	m_netObjects.ensureUnique();
 
-	if (!m_emitterPDF.isNormalized()) {
-		if (m_emitters.size() == 0) {
+	if (!m_emitterPDF.isNormalized()) 
+	{
+		if (m_emitters.size() == 0)
+		{
 			Log(EWarn, "No emitters found -- adding sun & sky.");
 			/* This is not a particularly realistic sky -- it extends below the
 			   horizon and uses an enlarged sun :). This is done to get better
@@ -366,16 +368,17 @@ void Scene::initialize() {
 			skyProps.setTransform("toWorld", Transform::rotate(Vector(0,1,0), -120.0f));
 			skyProps.setBoolean("extend", true);
 			skyProps.setFloat("sunRadiusScale", 15);
-			ref<Emitter> emitter = static_cast<Emitter *>(
-				PluginManager::getInstance()->createObject(MTS_CLASS(Emitter), skyProps));
+			ref<Emitter> emitter = static_cast<Emitter *>(PluginManager::getInstance()->createObject(MTS_CLASS(Emitter), skyProps));
 			addChild(emitter);
 			emitter->configure();
 		}
 
 		/* Calculate a discrete PDF to importance sample emitters */
-		for (ref_vector<Emitter>::iterator it = m_emitters.begin();
-				it != m_emitters.end(); ++it)
+		for (ref_vector<Emitter>::iterator it = m_emitters.begin(); it != m_emitters.end(); ++it)
+		{
 			m_emitterPDF.append(it->get()->getSamplingWeight());
+		}
+			
 
 		m_emitterPDF.normalize();
 	}
@@ -825,8 +828,8 @@ Spectrum Scene::evalTransmittanceAll(const Point &p1, bool p1OnSurface, const Po
 //                Emission and direct illumination sampling
 // ===========================================================================
 
-Spectrum Scene::sampleEmitterDirect(DirectSamplingRecord &dRec,
-		const Point2 &_sample, bool testVisibility) const {
+Spectrum Scene::sampleEmitterDirect(DirectSamplingRecord &dRec,const Point2 &_sample, bool testVisibility) const 
+{
 	Point2 sample(_sample);
 
 	/* Randomly pick an emitter */
@@ -835,18 +838,23 @@ Spectrum Scene::sampleEmitterDirect(DirectSamplingRecord &dRec,
 	const Emitter *emitter = m_emitters[index].get();
 	Spectrum value = emitter->sampleDirect(dRec, sample);
 
-	if (dRec.pdf != 0) {
-		if (testVisibility) {
-			Ray ray(dRec.ref, dRec.d, Epsilon,
-					dRec.dist*(1-ShadowEpsilon), dRec.time);
+	if (dRec.pdf != 0) 
+	{
+		if (testVisibility) 
+		{
+			Ray ray(dRec.ref, dRec.d, Epsilon, dRec.dist*(1-ShadowEpsilon), dRec.time);
 			if (m_kdtree->rayIntersect(ray))
+			{
 				return Spectrum(0.0f);
+			}	
 		}
 		dRec.object = emitter;
 		dRec.pdf *= emPdf;
 		value /= emPdf;
 		return value;
-	} else {
+	}
+	else
+	{
 		return Spectrum(0.0f);
 	}
 }
